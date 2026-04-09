@@ -1,0 +1,42 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "GoodBoyDoc",
+  "projectDescription": "A lightweight Python library for parsing and generating documentation from Google, NumPy, and Sphinx-style docstrings, with output to Markdown, HTML, or reStructuredText.",
+  "theme": "luma",
+  "primaryColor": "#4F8EF7",
+  "lightColor": null,
+  "darkColor": null,
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Guides",
+            "pages": ["guides/docstring-styles", "guides/output-formats", "guides/configuration"]
+          },
+          {
+            "group": "API Reference",
+            "pages": ["api/generate", "api/parse-docstring", "api/format-output"]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Parse Google, NumPy, and Sphinx-style docstrings",
+    "Output documentation to Markdown, HTML, or reStructuredText",
+    "Lightweight with minimal dependencies",
+    "Configurable via .goodboydoc.json project file",
+    "Simple programmatic API with three core functions"
+  ],
+  "publicApiSurface": [
+    "generate(source, style='google')",
+    "parse_docstring(text, style='google')",
+    "format_output(text, fmt='markdown')"
+  ]
+}

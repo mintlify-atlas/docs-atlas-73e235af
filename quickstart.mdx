@@ -1,80 +1,128 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "GoodBoyDoc quickstart: install and generate docs fast"
+description: "Learn how to install GoodBoyDoc and generate formatted Python documentation from docstrings in under a minute, with Google, NumPy, or Sphinx styles."
 ---
 
-## Get started in three steps
+GoodBoyDoc takes Python source code as input and returns formatted documentation extracted from its docstrings. This guide walks you through installation, your first generation run, and how to switch between docstring styles and output formats.
 
-Get your documentation site running locally and make your first customization.
+<Steps>
+  <Step title="Install the package">
+    Install GoodBoyDoc from PyPI using pip:
 
-### Step 1: Set up your local environment
+    ```bash
+    pip install goodboydoc
+    ```
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    GoodBoyDoc requires Python 3.7 or later and has no required third-party dependencies.
+  </Step>
 
-### Step 2: Deploy your changes
+  <Step title="Generate documentation from a Python file">
+    Import `generate` and `format_output`, then pass your source code as a string:
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+    ```python quickstart.py
+    from goodboydoc import generate, format_output
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    source = open("mymodule.py").read()
+    docs = generate(source, style="google")
+    print(format_output(docs, fmt="markdown"))
+    ```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    `generate` scans `mymodule.py` for triple-quoted docstrings and returns them as a single normalized string, with blocks separated by blank lines.
+  </Step>
 
-### Step 3: Go live
+  <Step title="Try different docstring styles">
+    Set the `style` parameter to match your project's docstring convention:
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    <Tabs>
+      <Tab title="Google">
+        ```python
+        docs = generate(source, style="google")
+        ```
+
+        Google-style docstrings use indented sections like `Args:`, `Returns:`, and `Raises:`. This is the default.
+      </Tab>
+      <Tab title="NumPy">
+        ```python
+        docs = generate(source, style="numpy")
+        ```
+
+        NumPy-style docstrings use section headers underlined with dashes (`---`). GoodBoyDoc strips the underline separators during normalization.
+      </Tab>
+      <Tab title="Sphinx">
+        ```python
+        docs = generate(source, style="sphinx")
+        ```
+
+        Sphinx-style docstrings use `:param name:`, `:type name:`, `:returns:`, and `:rtype:` directives.
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Choose an output format">
+    Pass the result of `generate` to `format_output` with your preferred format:
+
+    <Tabs>
+      <Tab title="Markdown (default)">
+        ```python
+        output = format_output(docs, fmt="markdown")
+        ```
+
+        Returns the documentation text as-is — ideal for writing to `.md` files or rendering in Markdown-aware tools.
+      </Tab>
+      <Tab title="HTML">
+        ```python
+        output = format_output(docs, fmt="html")
+        # Returns: <div class='goodboydoc'><p>...</p></div>
+        ```
+
+        HTML-escapes the text, splits on blank lines, and wraps each paragraph in `<p>` tags inside a `<div class='goodboydoc'>`.
+      </Tab>
+      <Tab title="reStructuredText">
+        ```python
+        output = format_output(docs, fmt="rst")
+        ```
+
+        Adds `=` underlines beneath non-indented lines, producing valid reStructuredText section headers.
+      </Tab>
+    </Tabs>
+  </Step>
+
+  <Step title="Parse a single docstring directly">
+    Use `parse_docstring` to normalize one docstring at a time without scanning a whole file:
+
+    ```python
+    from goodboydoc import parse_docstring
+
+    raw = """
+        Compute the sum of two numbers.
+
+        Args:
+            a: First number.
+            b: Second number.
+
+        Returns:
+            The sum of a and b.
+    """
+
+    cleaned = parse_docstring(raw, style="google")
+    print(cleaned)
+    ```
+  </Step>
+</Steps>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
-
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Docstring styles" icon="pen-to-square" href="/guides/docstring-styles">
+    See examples of Google, NumPy, and Sphinx docstring conventions.
+  </Card>
+  <Card title="Output formats" icon="file-export" href="/guides/output-formats">
+    Understand exactly how each output format transforms your documentation.
+  </Card>
+  <Card title="Configuration" icon="gear" href="/guides/configuration">
+    Set persistent defaults with a `.goodboydoc.json` project file.
+  </Card>
+  <Card title="API reference" icon="code" href="/api/generate">
+    Full parameter and return type reference for all three public functions.
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

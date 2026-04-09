@@ -1,0 +1,137 @@
+---
+title: "generate — Build docs from Python source"
+description: "Extract all triple-quoted docstrings from a Python source string and return them normalized and joined, using the specified style convention."
+---
+
+The `generate` function is the primary entry point for GoodBoyDoc. It accepts raw Python source code as a string, extracts every triple-quoted docstring using a regex scan, normalizes each one via [`parse_docstring`](/api/parse-docstring), and joins the results into a single documentation string.
+
+## Parameters
+
+<ParamField path="source" type="str" required>
+  Python source code to process. The function scans this string for all triple-quoted (`"""..."""`) blocks using `re.findall` with `re.DOTALL`, so the string can span multiple lines and contain any number of definitions.
+</ParamField>
+
+<ParamField path="style" type="str" default="google">
+  Docstring convention used when parsing each extracted block. Passed directly to `parse_docstring` for each block. Accepted values are `"google"`, `"numpy"`, and `"sphinx"`.
+</ParamField>
+
+## Return value
+
+<ResponseField name="return" type="str">
+  All extracted and normalized docstrings joined with `"\n\n"` as a separator. Empty or whitespace-only blocks are filtered out before joining. Returns an empty string if no docstrings are found.
+</ResponseField>
+
+## How it works
+
+Internally, `generate` calls the private helper `_extract`, which uses `re.findall(r'"""(.*?)"""', source, re.DOTALL)` to collect every triple-quoted string in the source. Each non-empty block is then passed to `parse_docstring` with the given `style`, and the normalized strings are joined with double newlines.
+
+<Note>
+  Only `"""..."""`-delimited docstrings are matched. Single-quoted (`'''...'''`) strings are not extracted.
+</Note>
+
+## Usage
+
+<Tabs>
+  <Tab title="Google style (default)">
+    ```python
+    import goodboydoc
+
+    source = '''
+    def add(x, y):
+        """Add two numbers together.
+
+        Args:
+            x: First operand.
+            y: Second operand.
+
+        Returns:
+            The sum of x and y.
+        """
+        return x + y
+    '''
+
+    docs = goodboydoc.generate(source)
+    print(docs)
+    # Add two numbers together.
+    #
+    # Args:
+    #     x: First operand.
+    #     y: Second operand.
+    #
+    # Returns:
+    #     The sum of x and y.
+    ```
+  </Tab>
+  <Tab title="NumPy style">
+    ```python
+    import goodboydoc
+
+    source = '''
+    def multiply(x, y):
+        """Multiply two numbers.
+
+        Parameters
+        ----------
+        x : int
+            First factor.
+        y : int
+            Second factor.
+
+        Returns
+        -------
+        int
+            The product of x and y.
+        """
+        return x * y
+    '''
+
+    docs = goodboydoc.generate(source, style="numpy")
+    print(docs)
+    # Multiply two numbers.
+    #
+    # Parameters
+    # x : int
+    #     First factor.
+    # y : int
+    #     Second factor.
+    #
+    # Returns
+    # int
+    #     The product of x and y.
+    ```
+  </Tab>
+  <Tab title="Multiple definitions">
+    ```python
+    import goodboydoc
+
+    source = '''
+    """Module-level docstring."""
+
+    def greet(name):
+        """Return a greeting string."""
+        return f"Hello, {name}!"
+
+    def farewell(name):
+        """Return a farewell string."""
+        return f"Goodbye, {name}!"
+    '''
+
+    docs = goodboydoc.generate(source)
+    print(docs)
+    # Module-level docstring.
+    #
+    # Return a greeting string.
+    #
+    # Return a farewell string.
+    ```
+  </Tab>
+</Tabs>
+
+## Importing
+
+`generate` is available from both the top-level package and the core module:
+
+```python
+from goodboydoc import generate          # top-level (recommended)
+from goodboydoc.core import generate     # direct module import
+```

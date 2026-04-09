@@ -1,0 +1,118 @@
+---
+title: "GoodBoyDoc: Python documentation generator overview"
+description: "Learn what GoodBoyDoc does, which docstring styles it supports, and how its three public functions work together to generate formatted Python documentation."
+---
+
+GoodBoyDoc is a lightweight Python library that turns docstrings in your source code into formatted documentation. Give it a Python source string, tell it which docstring convention you're using, and it returns clean output in Markdown, HTML, or reStructuredText — with no external dependencies beyond the standard library.
+
+## What problem it solves
+
+Writing documentation by hand is repetitive and quickly falls out of sync with code. GoodBoyDoc reads docstrings directly from your source files and produces consistent, formatted output that you can publish, diff, or pipe into other tools. Because it works on source strings rather than imported modules, it runs without executing your code.
+
+## Public API
+
+GoodBoyDoc exposes three functions, all importable from the top-level package:
+
+```python
+from goodboydoc import generate, parse_docstring, format_output
+```
+
+**`generate(source, style="google")`** — the main entry point. Accepts a Python source string, extracts all docstrings, parses each one according to the given style, and returns the combined result as a single string.
+
+**`parse_docstring(text, style="google")`** — parses and normalizes a single docstring. Useful when you already have the raw docstring text and don't need the extraction step.
+
+**`format_output(text, fmt="markdown")`** — renders a documentation string in the target format. Call this after `generate` or `parse_docstring` to get final output.
+
+## Supported docstring styles
+
+<Tabs>
+  <Tab title="Google">
+    The default style. Sections like `Args:`, `Returns:`, and `Raises:` use indented key-value pairs under labeled headings.
+
+    ```python
+    def greet(name):
+        """Return a greeting string.
+
+        Args:
+            name: The person's name.
+
+        Returns:
+            A greeting string.
+        """
+    ```
+  </Tab>
+  <Tab title="NumPy">
+    Uses underline-delimited section headers (`---`). GoodBoyDoc strips these underlines during normalization.
+
+    ```python
+    def greet(name):
+        """Return a greeting string.
+
+        Parameters
+        ----------
+        name : str
+            The person's name.
+
+        Returns
+        -------
+        str
+            A greeting string.
+        """
+    ```
+  </Tab>
+  <Tab title="Sphinx">
+    Uses `:param name:` and `:returns:` field lists, compatible with Sphinx's autodoc extension.
+
+    ```python
+    def greet(name):
+        """Return a greeting string.
+
+        :param name: The person's name.
+        :returns: A greeting string.
+        """
+    ```
+  </Tab>
+</Tabs>
+
+## Supported output formats
+
+<Tabs>
+  <Tab title="Markdown">
+    The default format. The documentation string is returned as-is, ready for Markdown renderers. This is the right choice for README files, static site generators, and most documentation pipelines.
+  </Tab>
+  <Tab title="HTML">
+    Paragraphs are wrapped in `<p>` tags inside a `<div class='goodboydoc'>` container. All text is HTML-escaped, so it's safe to embed directly in a page.
+  </Tab>
+  <Tab title="reStructuredText">
+    Each non-indented line gets an underline of `=` characters added below it, matching RST heading conventions. Use this when integrating with Sphinx or other RST-based toolchains.
+  </Tab>
+</Tabs>
+
+## Quick example
+
+```python basic_usage.py
+from goodboydoc import generate, format_output
+
+source = open("mymodule.py").read()
+
+# Extract and parse all docstrings
+docs = generate(source, style="google")
+
+# Render as Markdown (default)
+print(format_output(docs, fmt="markdown"))
+```
+
+<Note>
+  `generate` defaults to `style="google"` and `format_output` defaults to `fmt="markdown"`, so both style and format arguments are optional if you're using the defaults.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Install GoodBoyDoc and generate your first docs in under a minute.
+  </Card>
+  <Card title="Configuration guide" icon="sliders" href="/guides/configuration">
+    Set persistent defaults with a project-level configuration file.
+  </Card>
+</CardGroup>

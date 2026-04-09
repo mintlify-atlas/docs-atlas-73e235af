@@ -1,97 +1,73 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "GoodBoyDoc: Python docstring documentation generator"
+description: "GoodBoyDoc is a lightweight Python library that parses Google, NumPy, and Sphinx-style docstrings and exports them to Markdown, HTML, or reStructuredText."
 ---
 
-## Setting up
+GoodBoyDoc makes it easy to generate clean documentation from your Python source code. Point it at any `.py` file, choose your docstring convention and output format, and get formatted docs in seconds — no configuration required to get started.
 
-Get your documentation site up and running in minutes.
-
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Install GoodBoyDoc and generate your first documentation in under a minute.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Docstring styles" icon="pen-to-square" href="/guides/docstring-styles">
+    Learn how GoodBoyDoc handles Google, NumPy, and Sphinx-style docstrings.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Output formats" icon="file-export" href="/guides/output-formats">
+    Export documentation to Markdown, HTML, or reStructuredText.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="API reference" icon="code" href="/api/generate">
+    Full reference for `generate`, `parse_docstring`, and `format_output`.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+## Get started in three steps
 
-Everything you need to create world-class documentation.
+<Steps>
+  <Step title="Install the package">
+    Install GoodBoyDoc from PyPI using pip:
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+    ```bash
+    pip install goodboydoc
+    ```
+  </Step>
+  <Step title="Generate documentation from source">
+    Pass your Python source to `generate` and choose a docstring style:
 
-## Need inspiration?
+    ```python
+    from goodboydoc import generate, format_output
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+    source = open("mymodule.py").read()
+    docs = generate(source, style="google")
+    print(format_output(docs, fmt="markdown"))
+    ```
+  </Step>
+  <Step title="Configure for your project (optional)">
+    Create a `.goodboydoc.json` file in your project root to set persistent defaults:
+
+    ```json .goodboydoc.json
+    {
+        "style": "google",
+        "output_format": "markdown",
+        "include_private": false,
+        "max_line_length": 79
+    }
+    ```
+  </Step>
+</Steps>
+
+## Key features
+
+<CardGroup cols={2}>
+  <Card title="Three docstring styles" icon="list-check">
+    Parse Google, NumPy, and Sphinx-style docstrings with automatic normalization.
+  </Card>
+  <Card title="Multiple output formats" icon="layer-group">
+    Render documentation as Markdown, HTML, or reStructuredText.
+  </Card>
+  <Card title="Lightweight" icon="feather">
+    Minimal dependencies — only the standard library and an optional Sphinx integration.
+  </Card>
+  <Card title="Simple API" icon="plug">
+    Three focused functions: `generate`, `parse_docstring`, and `format_output`.
+  </Card>
+</CardGroup>

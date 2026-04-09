@@ -1,0 +1,58 @@
+---
+title: 'Configuring GoodBoyDoc with .goodboydoc.json'
+description: 'Store project-wide defaults for docstring style, output format, and other options in a .goodboydoc.json file placed at your project root.'
+---
+
+GoodBoyDoc reads project-wide settings from a `.goodboydoc.json` file in your project root. Create this file to define the defaults for your project — the same options you would otherwise pass as arguments to `generate` and `format_output`.
+
+## Placing the config file
+
+Create `.goodboydoc.json` in the root directory of your project — the same folder that typically contains your `pyproject.toml`, `setup.py`, or `README.md`.
+
+```text
+my-project/
+├── .goodboydoc.json
+├── pyproject.toml
+└── src/
+    └── mypackage/
+```
+
+## Complete example
+
+```json .goodboydoc.json
+{
+    "style": "google",
+    "output_format": "markdown",
+    "include_private": false,
+    "max_line_length": 79
+}
+```
+
+## Configuration options
+
+<ParamField path="style" type="string" default="google">
+  The docstring convention to expect when parsing source code. Accepted values are `"google"`, `"numpy"`, and `"sphinx"`. Corresponds to the `style` parameter on `generate` and `parse_docstring`.
+</ParamField>
+
+<ParamField path="output_format" type="string" default="markdown">
+  The target format for rendered documentation. Accepted values are `"markdown"`, `"html"`, and `"rst"`. Corresponds to the `fmt` parameter on `format_output`.
+</ParamField>
+
+<ParamField path="include_private" type="boolean" default="false">
+  When `true`, includes members whose names begin with a single underscore (for example, `_helper`). Double-underscore dunder methods are not affected by this setting.
+</ParamField>
+
+<ParamField path="max_line_length" type="number" default="79">
+  Maximum character width for wrapped output lines. The default of 79 follows the PEP 8 convention.
+</ParamField>
+
+## Related API parameters
+
+The config file keys correspond directly to arguments on the public API:
+
+| Config key        | API parameter | Function                      |
+| ----------------- | ------------- | ----------------------------- |
+| `style`           | `style`       | `generate`, `parse_docstring` |
+| `output_format`   | `fmt`         | `format_output`               |
+
+<Tip>Keep `max_line_length` at `79` to stay consistent with PEP 8. Increase it to `88` if your project uses Black's default line length.</Tip>

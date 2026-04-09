@@ -1,0 +1,147 @@
+---
+title: 'Output formats: Markdown, HTML, and RST'
+description: 'Use format_output to render documentation as plain Markdown, HTML with paragraph tags in a goodboydoc div, or reStructuredText with = section underlines.'
+---
+
+`format_output` in `goodboydoc.formatter` converts a documentation string into one of three target formats: `markdown`, `html`, or `rst`. Pass the `fmt` argument to select a format. The default is `'markdown'`.
+
+```python
+from goodboydoc.formatter import format_output
+
+result = format_output(doc_text, fmt="html")
+```
+
+## Markdown (default)
+
+When `fmt="markdown"` (or when `fmt` is omitted), `format_output` returns the text unchanged. No transformation is applied.
+
+**Input:**
+
+```text
+Connect to a remote server.
+
+Returns an open socket connection.
+```
+
+**Output:**
+
+```text
+Connect to a remote server.
+
+Returns an open socket connection.
+```
+
+This makes `markdown` a safe pass-through format — any upstream processing (such as whitespace normalization from `parse_docstring`) is preserved as-is.
+
+## HTML
+
+When `fmt="html"`, `format_output`:
+
+1. Escapes HTML special characters using Python's `html.escape` (so `<`, `>`, `&`, and `"` are converted to their HTML entities).
+2. Splits the text on double newlines (`\n\n`) to find paragraph boundaries.
+3. Wraps each non-empty paragraph in a `<p>` tag.
+4. Wraps the entire result in `<div class='goodboydoc'>`.
+
+**Input:**
+
+```text
+Connect to a remote server.
+
+Returns an open socket connection.
+```
+
+**Output:**
+
+```html
+<div class='goodboydoc'><p>Connect to a remote server.</p><p>Returns an open socket connection.</p></div>
+```
+
+<Note>HTML entity escaping happens before paragraph splitting. If your documentation contains `<`, `>`, or `&` characters, they will appear as `&lt;`, `&gt;`, or `&amp;` in the HTML output.</Note>
+
+## RST (reStructuredText)
+
+When `fmt="rst"`, `format_output` adds a row of `=` characters beneath every non-indented line, matching the length of that line. Indented lines (lines whose first character is a space) are passed through without modification.
+
+**Input:**
+
+```text
+Connect to a remote server.
+
+    host: Hostname or IP address.
+
+Returns an open socket connection.
+```
+
+**Output:**
+
+```text
+Connect to a remote server.
+=============================
+
+    host: Hostname or IP address.
+
+Returns an open socket connection.
+==================================
+```
+
+<Note>Only lines where the first character is not a space receive an underline. Indented content — such as parameter descriptions — is left unchanged.</Note>
+
+## Format comparison
+
+The examples below show the same input string rendered in each format.
+
+**Input text:**
+
+```text
+Parse configuration file.
+
+Reads settings from disk and validates them.
+```
+
+<Tabs>
+  <Tab title="Markdown">
+    ```python
+    from goodboydoc.formatter import format_output
+
+    result = format_output(text, fmt="markdown")
+    # Returns text unchanged:
+    # Parse configuration file.
+    #
+    # Reads settings from disk and validates them.
+    ```
+  </Tab>
+  <Tab title="HTML">
+    ```python
+    from goodboydoc.formatter import format_output
+
+    result = format_output(text, fmt="html")
+    # Returns:
+    # <div class='goodboydoc'><p>Parse configuration file.</p><p>Reads settings from disk and validates them.</p></div>
+    ```
+  </Tab>
+  <Tab title="RST">
+    ```python
+    from goodboydoc.formatter import format_output
+
+    result = format_output(text, fmt="rst")
+    # Returns:
+    # Parse configuration file.
+    # =========================
+    #
+    # Reads settings from disk and validates them.
+    # =============================================
+    ```
+  </Tab>
+</Tabs>
+
+## Using format_output with generate
+
+You can pipe the output of `generate` directly into `format_output`:
+
+```python
+import goodboydoc
+from goodboydoc.formatter import format_output
+
+raw = goodboydoc.generate(source_code, style="google")
+html_output = format_output(raw, fmt="html")
+```

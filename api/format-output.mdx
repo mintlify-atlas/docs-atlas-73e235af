@@ -1,0 +1,117 @@
+---
+title: "format_output — Render docs as Markdown, HTML, or RST"
+description: "Convert a documentation string to Markdown, HTML with paragraph tags, or reStructuredText with heading underlines, depending on the fmt argument."
+---
+
+`format_output` takes a documentation string produced by `generate` or `parse_docstring` and renders it in the target format. The default is `"markdown"`, which returns the text unchanged. The `"html"` and `"rst"` modes apply structural transformations described below.
+
+## Parameters
+
+<ParamField path="text" type="str" required>
+  Documentation string to format. This is typically the output of `generate` or `parse_docstring`, but any plain text string is accepted.
+</ParamField>
+
+<ParamField path="fmt" type="str" default="markdown">
+  Target output format. Accepted values:
+
+  - `"markdown"` — returns `text` unchanged.
+  - `"html"` — HTML-escapes the text with `html.escape`, splits on `"\n\n"`, wraps each non-empty paragraph in a `<p>` tag, and returns the result inside `<div class='goodboydoc'>`.
+  - `"rst"` — iterates over lines; for each line that is non-empty and does not start with whitespace, appends a `=` underline of the same character length immediately below it.
+</ParamField>
+
+## Return value
+
+<ResponseField name="return" type="str">
+  The formatted string. Format depends on the `fmt` argument:
+
+  - `"markdown"`: the original `text` string, unmodified.
+  - `"html"`: an HTML string wrapped in `<div class='goodboydoc'>` containing `<p>` elements for each paragraph.
+  - `"rst"`: the original text with `=` underlines added beneath qualifying lines.
+</ResponseField>
+
+## Behavior details
+
+### Markdown
+
+No transformation is applied. The string is returned as-is, making this format suitable when downstream tooling already handles rendering.
+
+### HTML
+
+The function uses Python's standard library `html.escape` to neutralize characters like `<`, `>`, and `&` before any structural processing. The escaped text is then split on `"\n\n"` (double newline), and each chunk that contains non-whitespace content is wrapped in a `<p>` tag. All paragraphs are concatenated and placed inside a `<div>` with the class `goodboydoc`.
+
+<Note>
+  Only double newlines (`\n\n`) act as paragraph separators. Single newlines within a paragraph are preserved inside the `<p>` content.
+</Note>
+
+### RST
+
+The function iterates line-by-line. For every line that is both non-empty and does not start with a whitespace character, a second line of `=` characters matching the line's length is inserted immediately after it. Lines that are empty or start with whitespace (such as indented parameter descriptions) are passed through unchanged.
+
+## Usage
+
+<Tabs>
+  <Tab title="Markdown">
+    ```python
+    from goodboydoc.formatter import format_output
+
+    text = "Add two numbers together.\n\nReturns the sum as an integer."
+
+    result = format_output(text, fmt="markdown")
+    print(result)
+    # Add two numbers together.
+    #
+    # Returns the sum as an integer.
+    ```
+
+    The output is identical to the input.
+  </Tab>
+  <Tab title="HTML">
+    ```python
+    from goodboydoc.formatter import format_output
+
+    text = "Add two numbers together.\n\nReturns the sum as an integer."
+
+    result = format_output(text, fmt="html")
+    print(result)
+    # <div class='goodboydoc'><p>Add two numbers together.</p><p>Returns the sum as an integer.</p></div>
+    ```
+
+    Special characters are HTML-escaped before wrapping:
+
+    ```python
+    text = "Use x < y to compare.\n\nPass a & b as arguments."
+
+    result = format_output(text, fmt="html")
+    print(result)
+    # <div class='goodboydoc'><p>Use x &lt; y to compare.</p><p>Pass a &amp; b as arguments.</p></div>
+    ```
+  </Tab>
+  <Tab title="RST">
+    ```python
+    from goodboydoc.formatter import format_output
+
+    text = "Parameters\n    x: First operand.\n    y: Second operand.\nReturns\n    The sum."
+
+    result = format_output(text, fmt="rst")
+    print(result)
+    # Parameters
+    # ==========
+    #     x: First operand.
+    #     y: Second operand.
+    # Returns
+    # =======
+    #     The sum.
+    ```
+
+    Lines starting with whitespace (`    x: First operand.`, `    y: Second operand.`, `    The sum.`) are passed through without an underline. Top-level lines (`Parameters`, `Returns`) receive a `=` underline equal to their character count.
+  </Tab>
+</Tabs>
+
+## Importing
+
+`format_output` is available from both the top-level package and the formatter module:
+
+```python
+from goodboydoc import format_output             # top-level (recommended)
+from goodboydoc.formatter import format_output   # direct module import
+```

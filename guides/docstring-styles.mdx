@@ -1,0 +1,157 @@
+---
+title: 'Docstring styles: Google, NumPy, and Sphinx'
+description: 'GoodBoyDoc supports three Python docstring conventions — Google, NumPy, and Sphinx. Learn how each is structured and which style parameter value to use.'
+---
+
+GoodBoyDoc parses Python docstrings written in three widely-used conventions: Google, NumPy, and Sphinx. The `style` parameter on `generate` and `parse_docstring` tells GoodBoyDoc which convention to expect. The default is `'google'`.
+
+## Choosing a style
+
+Pass the `style` argument when calling `generate` or `parse_docstring`:
+
+```python
+import goodboydoc
+
+docs = goodboydoc.generate(source_code, style="google")
+```
+
+<Tip>If you don't pass a `style` argument, GoodBoyDoc defaults to `'google'`.</Tip>
+
+## Google style
+
+Google-style docstrings use named sections (`Args`, `Returns`, `Raises`, and so on) with their content indented beneath the section header.
+
+```python
+def connect(host, port=8080, timeout=30):
+    """Connect to a remote server.
+
+    Args:
+        host: Hostname or IP address of the server.
+        port: Port number to connect on.
+        timeout: Seconds to wait before raising an error.
+
+    Returns:
+        An open socket connection.
+
+    Raises:
+        ConnectionError: If the server cannot be reached.
+    """
+```
+
+Pass `style="google"` (or omit `style` entirely, since it is the default):
+
+```python
+docs = goodboydoc.generate(source_code, style="google")
+```
+
+## NumPy style
+
+NumPy-style docstrings use the same named sections as Google style, but each section header is followed by a line of dashes (`---`) that acts as an underline separator.
+
+```python
+def connect(host, port=8080, timeout=30):
+    """Connect to a remote server.
+
+    Parameters
+    ----------
+    host : str
+        Hostname or IP address of the server.
+    port : int
+        Port number to connect on.
+    timeout : int
+        Seconds to wait before raising an error.
+
+    Returns
+    -------
+    socket
+        An open socket connection.
+
+    Raises
+    ------
+    ConnectionError
+        If the server cannot be reached.
+    """
+```
+
+<Note>`parse_docstring` normalizes NumPy-style docstrings by removing the `---` underline separators. The section names are preserved; only the dashes are stripped.</Note>
+
+Pass `style="numpy"`:
+
+```python
+docs = goodboydoc.generate(source_code, style="numpy")
+```
+
+## Sphinx style
+
+Sphinx-style docstrings use field directives prefixed with a colon. Each parameter, type, return value, and return type gets its own directive on a separate line.
+
+```python
+def connect(host, port=8080, timeout=30):
+    """Connect to a remote server.
+
+    :param host: Hostname or IP address of the server.
+    :type host: str
+    :param port: Port number to connect on.
+    :type port: int
+    :param timeout: Seconds to wait before raising an error.
+    :type timeout: int
+    :returns: An open socket connection.
+    :rtype: socket
+    """
+```
+
+Pass `style="sphinx"`:
+
+```python
+docs = goodboydoc.generate(source_code, style="sphinx")
+```
+
+## Style comparison
+
+<Tabs>
+  <Tab title="Google">
+    ```python
+    def add(a, b):
+        """Add two numbers.
+
+        Args:
+            a: First operand.
+            b: Second operand.
+
+        Returns:
+            The sum of a and b.
+        """
+    ```
+  </Tab>
+  <Tab title="NumPy">
+    ```python
+    def add(a, b):
+        """Add two numbers.
+
+        Parameters
+        ----------
+        a : number
+            First operand.
+        b : number
+            Second operand.
+
+        Returns
+        -------
+        number
+            The sum of a and b.
+        """
+    ```
+  </Tab>
+  <Tab title="Sphinx">
+    ```python
+    def add(a, b):
+        """Add two numbers.
+
+        :param a: First operand.
+        :param b: Second operand.
+        :returns: The sum of a and b.
+        :rtype: number
+        """
+    ```
+  </Tab>
+</Tabs>

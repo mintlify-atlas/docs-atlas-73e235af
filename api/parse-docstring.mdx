@@ -1,0 +1,141 @@
+---
+title: "parse_docstring — Normalize a single docstring"
+description: "Dedent and strip a raw docstring string, with optional NumPy-style underline removal, returning a clean normalized text ready for output."
+---
+
+`parse_docstring` normalizes a single raw docstring by removing common indentation and stripping leading and trailing whitespace. For NumPy-style docstrings it also removes the `---` separator lines that underline section headings, collapsing them into plain newlines.
+
+## Parameters
+
+<ParamField path="text" type="str" required>
+  Raw docstring content to normalize. This is typically the text extracted from inside triple quotes, before any dedenting has been applied. Leading and trailing blank lines are removed after dedenting.
+</ParamField>
+
+<ParamField path="style" type="str" default="google">
+  Docstring convention of the input text. Controls post-processing applied after the initial `textwrap.dedent` and `.strip()` pass. Accepted values:
+
+  - `"google"` — no additional transformation beyond dedent and strip.
+  - `"numpy"` — additionally replaces all occurrences of `\n---+` (three or more dashes following a newline) with `\n`, removing NumPy section underlines.
+  - `"sphinx"` — no additional transformation beyond dedent and strip.
+</ParamField>
+
+## Return value
+
+<ResponseField name="return" type="str">
+  The cleaned docstring text. Common leading whitespace is removed by `textwrap.dedent`, leading and trailing whitespace is removed by `.strip()`, and (for NumPy style) section underlines matching the pattern `\n-{3,}` are replaced with `\n`.
+</ResponseField>
+
+## Behavior details
+
+The function always begins with:
+
+```python
+text = textwrap.dedent(text).strip()
+```
+
+This removes the uniform indentation that Python adds to indented docstrings, then trims surrounding blank lines. For `style="numpy"`, the following substitution is applied afterwards:
+
+```python
+re.sub(r"\n-{3,}", "\n", text)
+```
+
+This collapses lines consisting solely of three or more hyphens (the NumPy section-heading underline convention) into a bare newline, effectively removing them while preserving the blank-line spacing around sections.
+
+<Tip>
+  `parse_docstring` is called once per extracted block inside `generate`. You can also call it directly when you already have a docstring string and do not need the full source-scanning pipeline.
+</Tip>
+
+## Usage
+
+<Tabs>
+  <Tab title="Google style">
+    ```python
+    from goodboydoc import parse_docstring
+
+    raw = """
+        Compute the mean of a list.
+
+        Args:
+            values: A list of numeric values.
+
+        Returns:
+            The arithmetic mean.
+        """
+
+    result = parse_docstring(raw, style="google")
+    print(result)
+    # Compute the mean of a list.
+    #
+    # Args:
+    #     values: A list of numeric values.
+    #
+    # Returns:
+    #     The arithmetic mean.
+    ```
+  </Tab>
+  <Tab title="NumPy style">
+    ```python
+    from goodboydoc import parse_docstring
+
+    raw = """
+        Compute the mean of a list.
+
+        Parameters
+        ----------
+        values : list
+            A list of numeric values.
+
+        Returns
+        -------
+        float
+            The arithmetic mean.
+        """
+
+    result = parse_docstring(raw, style="numpy")
+    print(result)
+    # Compute the mean of a list.
+    #
+    # Parameters
+    # values : list
+    #     A list of numeric values.
+    #
+    # Returns
+    # float
+    #     The arithmetic mean.
+    ```
+
+    The `----------` lines following `Parameters` and `Returns` are removed by the regex `\n-{3,}` → `\n`.
+  </Tab>
+  <Tab title="Sphinx style">
+    ```python
+    from goodboydoc import parse_docstring
+
+    raw = """
+        Compute the mean of a list.
+
+        :param values: A list of numeric values.
+        :type values: list
+        :returns: The arithmetic mean.
+        :rtype: float
+        """
+
+    result = parse_docstring(raw, style="sphinx")
+    print(result)
+    # Compute the mean of a list.
+    #
+    # :param values: A list of numeric values.
+    # :type values: list
+    # :returns: The arithmetic mean.
+    # :rtype: float
+    ```
+  </Tab>
+</Tabs>
+
+## Importing
+
+`parse_docstring` is available from both the top-level package and the core module:
+
+```python
+from goodboydoc import parse_docstring          # top-level (recommended)
+from goodboydoc.core import parse_docstring     # direct module import
+```
